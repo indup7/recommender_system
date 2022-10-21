@@ -16,8 +16,10 @@ def load_and_preprocess_data():
     # but to keep things simple it quite good.
     df = df[df["Quantity"] > 0]
 
-    # Parse the date column
-    df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"]).dt.floor("d")
+    # Parse the date column and add 10 years, just to better visualization
+    df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"]).dt.floor(
+        "d"
+    ) + pd.offsets.DateOffset(years=10)
 
     # Change customer id to int
     df["CustomerID"] = df["CustomerID"].astype(int)
