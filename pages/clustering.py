@@ -143,7 +143,7 @@ def show_purhcase_history(user: int, df: pd.DataFrame):
         .properties(title="User expenses")
     )
 
-    st.altair_chart(c, use_container_width=True)
+    st.altair_chart(c)
 
 
 def show_user_info(user: int, df_rfm: pd.DataFrame):
@@ -245,7 +245,7 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
                 line_dash="dot",
                 annotation=dict(textangle=90, font_color="red"),
             )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig)
 
 
 def display_dataframe_heatmap(df_rfm: pd.DataFrame):

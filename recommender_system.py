@@ -329,8 +329,7 @@ The dataset used for these computations is the following:
         data.drop(
             COLUMN_NOT_DISPLAY,
             axis=1,
-        ),
-        use_container_width=True,
+        )
     )
 
     st.markdown("## Interactive suggestion")
