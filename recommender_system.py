@@ -11,7 +11,7 @@ import time
 from utils import load_and_preprocess_data
 
 import matplotlib.pyplot as plt
-from typing import Union, List, Dict, Any, TYPE_CHECKING
+from typing import Union, List, Dict, Any
 import plotly.graph_objects as go
 
 
@@ -322,6 +322,7 @@ The dataset used for these computations is the following:
         """
     )
     st.sidebar.markdown(SIDEBAR_DESCRIPTION)
+
 
     # Show the data
     st.dataframe(

@@ -9,6 +9,7 @@ import plotly.express as px
 import itertools
 from typing import Dict, List
 
+
 SIDEBAR_DESCRIPTION = """
 # Client clustering
 
@@ -319,7 +320,7 @@ def main():
         "\nThis is the processed dataset with information about the clients, such as"
         " the RFM values and the clusters they belong to."
         )
-    st.dataframe(df_rfm)
+    st.dataframe(df_rfm.style.format(formatter={"Revenue": "{:.2f}"}))
 
     cluster_info_dict = defaultdict(list)
 
