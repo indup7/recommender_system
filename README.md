@@ -5,7 +5,7 @@ colorFrom: purple
 colorTo: blue
 sdk: streamlit
 sdk_version: 1.10.0
-app_file: recommendation_system.py
+app_file: recommender_system.py
 pinned: false
 license: mit
 ---
