@@ -1,3 +1,16 @@
+---
+title: Demo Confindustria
+emoji: 🐨
+colorFrom: purple
+colorTo: blue
+sdk: streamlit
+sdk_version: 1.10.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
+
 # Demo Confindustria
 
 Demo with recsys and clustering for the [online retail](https://www.kaggle.com/datasets/vijayuv/onlineretail?select=OnlineRetail.csv) dataset.
