@@ -7,7 +7,6 @@ from sklearn.manifold import TSNE
 from os import cpu_count
 import numpy as np
 import time
-import random
 
 from utils import load_and_preprocess_data
 
@@ -30,8 +29,8 @@ SIDEBAR_DESCRIPTION = """
 
 ## What is it?
 A recommender system is a tool that suggests something new to a particular
-user that she/he might be interest in. It becomes really useful when
-the number of items that a user can choose from is high.
+user that she/he might be interested in. It becomes useful when
+the number of items a user can choose from is high.
 
 ## How does it work?
 A recommender system internally finds similar users and similar items,
@@ -44,7 +43,7 @@ already bought. If they are new and similar, the model suggests them.
 
 ## How we prepare the data
 For each user, we compute the quantity purchased for every single item. 
-This will be the metric the value considered by the modele to compute 
+This will be the metric the value considered by the model to compute 
 the similarity. The item that a user has never bought will
 be left at zero. These zeros will be the subject of the recommendation.
 """.lstrip()
