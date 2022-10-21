@@ -22,14 +22,14 @@ To cluster a client, we adopt the RFM metrics. They stand for:
 
 Given these 3 metrics, we can cluster the customers and find a suitable
 "definition" based on the clusters they belong to. Since the dataset
-we're using right now as about 5000 distinct customers, we identify
+we're using right now has about 5000 distinct customers, we identify
 3 clusters for each metric.
 
 ## How we compute the clusters
 
-We resort to a simple KMeans algorithm. It tries to find the clusters
-based on the distance between points. In particular, near points tend to be associated
-with the same cluster, while further points should belong to different clusters.
+We resort to a GaussianMixture algorithm. We can think of GaussianMixture 
+as generalized k-means clustering that incorporates information about 
+the covariance structure of the data as well as the centers of the clusters.
 """.lstrip()
 
 FREQUENCY_CLUSTERS_EXPLAIN = """
@@ -238,7 +238,8 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
         # Get the max value in the cluster info. The cluster info is a list of min - max
         # values per cluster.
         values = cluster_info[f"{x}_cluster"]
-        for n_cluster, i in enumerate(range(1, len(values), 2)):
+        # Add vertical bar on each cluster end. But skip the last cluster.
+        for n_cluster, i in enumerate(range(1, len(values)-1, 2)):
             fig.add_vline(
                 x=values[i],
                 annotation_text=f"End of cluster {n_cluster+1}",
@@ -299,7 +300,7 @@ def display_dataframe_heatmap(df_rfm: pd.DataFrame):
     # and then display it.
     st.markdown("## Heatmap: how the client are distributed between clusters")
     st.write(
-        count.style.format(thousands=" ", precision=0, na_rep="Missing")
+        count.style.format(thousands=" ", precision=0, na_rep="0")
         .set_table_styles([cell_hover, index_names, headers])
         .background_gradient(cmap="coolwarm")
         .to_html(),
