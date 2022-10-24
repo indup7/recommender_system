@@ -324,13 +324,19 @@ The dataset used for these computations is the following:
     )
     st.sidebar.markdown(SIDEBAR_DESCRIPTION)
 
+    to_display = data.drop(
+        COLUMN_NOT_DISPLAY,
+        axis=1,
+    )
+
+    # Convert to int just to display the column without trailing decimals.
+    # @note: I know I can use the "format" function of pandas, but I found out
+    #   it is super slow when fomratting large tables.
+    to_display["Price"] = to_display["Price"].astype(int)
 
     # Show the data
     st.dataframe(
-        data.drop(
-            COLUMN_NOT_DISPLAY,
-            axis=1,
-        )
+        to_display,
     )
 
     st.markdown("## Interactive suggestion")
