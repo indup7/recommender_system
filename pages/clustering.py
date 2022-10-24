@@ -235,7 +235,12 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
     """Plots 3 histograms for the RFM metrics."""
 
     for x in ("Revenue", "Frequency", "Recency"):
-        fig = px.histogram(df_rfm, x=x, log_y=True, title=f"{x} metric")
+        fig = px.histogram(
+            df_rfm,
+            x=x,
+            log_y=True,
+            title=f"{x} metric",
+        )
         # Get the max value in the cluster info. The cluster info is a list of min - max
         # values per cluster.
         values = cluster_info[f"{x}_cluster"]
@@ -247,6 +252,11 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
                 line_dash="dot",
                 annotation=dict(textangle=90, font_color="red"),
             )
+
+        fig.update_layout(
+            yaxis_title="Count (log scale)",
+        )
+
         st.plotly_chart(fig)
 
 

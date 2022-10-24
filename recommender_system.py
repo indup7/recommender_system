@@ -254,7 +254,7 @@ def display_recommendation_plots(
             opacity=0.8,
             name="Similar bought by user",
             marker_symbol="square-open",
-            marker_color="darkviolet",
+            marker_color="#010CFA",
             marker_size=10,
             hovertext=contribution_description.loc[contributions].values.squeeze(),
         )
@@ -268,6 +268,7 @@ def display_recommendation_plots(
             name="Product bought by similar users",
             opacity=0.7,
             marker_symbol="circle-open",
+            marker_color="#FA5F19",
             marker_size=10,
             hovertext=items_other_description.loc[
                 bought_by_similar_users
@@ -281,7 +282,7 @@ def display_recommendation_plots(
             y=suggestion_dec[:, 1],
             mode="markers",
             name="Suggested",
-            marker_color="red",
+            marker_color="#1A9626",
             marker_symbol="star",
             marker_size=10,
             hovertext=suggestion_description.loc[suggestions].values.squeeze(),
