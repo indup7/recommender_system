@@ -38,9 +38,9 @@ The **frequency** denotes how frequently a customer has ordered.
 
 There 3 available clusters for this metric:
 
-- cluster 0: denotes a customer that purchases one or few times (range [{}, {}])
-- cluster 1: these customer have a discrete amount of orders (range [{}, {}])
-- cluster 2: these customer purchases lots of times (range [{}, {}])
+- cluster 1: denotes a customer that purchases one or few times (range [{}, {}])
+- cluster 2: these customer have a discrete amount of orders (range [{}, {}])
+- cluster 3: these customer purchases lots of times (range [{}, {}])
 
 -------
 """.lstrip()
@@ -50,9 +50,9 @@ The **recency** refers to how recently a customer has bought;
 
 There 3 available clusters for this metric:
 
-- cluster 0: the last order of these client is long time ago (range [{}, {}])
-- cluster 1: these are clients that purchases something not very recently (range [{}, {}])
-- cluster 2: the last order of these client is a few days/weeks ago (range [{}, {}])
+- cluster 1: the last order of these client is long time ago (range [{}, {}])
+- cluster 2: these are clients that purchases something not very recently (range [{}, {}])
+- cluster 3: the last order of these client is a few days/weeks ago (range [{}, {}])
 
 -------
 """.lstrip()
@@ -63,9 +63,9 @@ from your business.
 
 There 3 available clusters for this metric:
 
-- cluster 0: these clients spent little money (range [{}, {}])
-- cluster 1: these clients spent a considerable amount of money (range [{}, {}])
-- cluster 2: these clients spent lots of money (range [{}, {}])
+- cluster 1: these clients spent little money (range [{}, {}])
+- cluster 2: these clients spent a considerable amount of money (range [{}, {}])
+- cluster 3: these clients spent lots of money (range [{}, {}])
 
 -------
 """.lstrip()
@@ -234,7 +234,7 @@ def categorize_user(recency_cluster, frequency_cluster, monetary_cluster):
 def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int]]):
     """Plots 3 histograms for the RFM metrics."""
 
-    for x in ("Revenue", "Frequency", "Recency"):
+    for x, to_reverse in zip(("Revenue", "Frequency", "Recency"), (False, False, True)):
         fig = px.histogram(
             df_rfm,
             x=x,
@@ -244,8 +244,14 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
         # Get the max value in the cluster info. The cluster info is a list of min - max
         # values per cluster.
         values = cluster_info[f"{x}_cluster"]
+        print(values)
         # Add vertical bar on each cluster end. But skip the last cluster.
-        for n_cluster, i in enumerate(range(1, len(values)-1, 2)):
+        loop_range = list(enumerate(range(1, len(values)-1, 2)))
+        if to_reverse:
+            loop_range = zip((2, 1), range(len(values)-1, 1, -2))
+        for n_cluster, i in loop_range:
+            print(x)
+            print(values[i])
             fig.add_vline(
                 x=values[i],
                 annotation_text=f"End of cluster {n_cluster+1}",
