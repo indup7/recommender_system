@@ -69,6 +69,7 @@ def create_and_fit_recommender(
             factors=190,
             alpha=0.6,
             regularization=0.06,
+            random_state=42,
         ),
     )
     return recommender

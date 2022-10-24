@@ -248,6 +248,7 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
         # Add vertical bar on each cluster end. But skip the last cluster.
         loop_range = list(enumerate(range(1, len(values)-1, 2)))
         if to_reverse:
+            # @todo: remove hardcoded values
             loop_range = zip((2, 1), range(len(values)-1, 1, -2))
         for n_cluster, i in loop_range:
             print(x)
