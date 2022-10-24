@@ -1,5 +1,5 @@
 ---
-title: Demo Confindustria
+title: Recommender system and customer segmentation
 emoji: 🐨
 colorFrom: purple
 colorTo: blue
@@ -11,7 +11,7 @@ license: mit
 ---
 
 
-# Demo Confindustria
+# Recommender system and customer segmentation
 
 Demo with recsys and clustering for the [online retail](https://www.kaggle.com/datasets/vijayuv/onlineretail?select=OnlineRetail.csv) dataset.
 
