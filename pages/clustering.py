@@ -7,7 +7,7 @@ import altair as alt
 from sklearn.mixture import GaussianMixture
 import plotly.express as px
 import itertools
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 
 SIDEBAR_DESCRIPTION = """
@@ -15,10 +15,10 @@ SIDEBAR_DESCRIPTION = """
 
 To cluster a client, we adopt the RFM metrics. They stand for:
 
-- R = recency, that is the number of days since the last purchase 
+- R = recency, that is the number of days since the last purchase
     in the store
 - F = frequency, that is the number of times a customer has ordered something
-- M = monetary value, that is how much a customer has spent buying 
+- M = monetary value, that is how much a customer has spent buying
     from your business.
 
 Given these 3 metrics, we can cluster the customers and find a suitable
@@ -28,8 +28,8 @@ we're using right now has about 5000 distinct customers, we identify
 
 ## How we compute the clusters
 
-We resort to a GaussianMixture algorithm. We can think of GaussianMixture 
-as generalized k-means clustering that incorporates information about 
+We resort to a GaussianMixture algorithm. We can think of GaussianMixture
+as generalized k-means clustering that incorporates information about
 the covariance structure of the data as well as the centers of the clusters.
 """.lstrip()
 
@@ -46,7 +46,7 @@ There 3 available clusters for this metric:
 """.lstrip()
 
 RECENCY_CLUSTERS_EXPLAIN = """
-The **recency** refers to how recently a customer has bought; 
+The **recency** refers to how recently a customer has bought;
 
 There 3 available clusters for this metric:
 
@@ -58,7 +58,7 @@ There 3 available clusters for this metric:
 """.lstrip()
 
 MONETARY_CLUSTERS_EXPLAIN = """
-The **revenue** refers to how much a customer has spent buying 
+The **revenue** refers to how much a customer has spent buying
 from your business.
 
 There 3 available clusters for this metric:
@@ -115,7 +115,7 @@ def cluster_clients(df: pd.DataFrame):
 
 
 def _order_cluster(cluster_model: GaussianMixture, clusters, order="ascending"):
-    """Orders the cluster by order."""
+    """Orders the cluster by `order`."""
     centroids = cluster_model.means_.sum(axis=1)
 
     if order.lower() == "descending":
@@ -191,7 +191,10 @@ def explain_cluster(cluster_info):
             " and values"
         )
         for cluster, info in cluster_info.items():
-            st.write(EXPLANATION_DICT[cluster].format(*info))
+            # Transform the (mins, maxs) tuple into
+            # [min_1, max_1, min_2, max_2, ...] list.
+            min_max_interleaved = list(itertools.chain(*zip(info[0], info[1])))
+            st.write(EXPLANATION_DICT[cluster].format(*min_max_interleaved))
 
 
 def categorize_user(recency_cluster, frequency_cluster, monetary_cluster):
@@ -231,7 +234,9 @@ def categorize_user(recency_cluster, frequency_cluster, monetary_cluster):
     st.write(f"The customer can be described as: **{description}**")
 
 
-def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int]]):
+def plot_rfm_distribution(
+    df_rfm: pd.DataFrame, cluster_info: Dict[str, Tuple[List[int], List[int]]]
+):
     """Plots 3 histograms for the RFM metrics."""
 
     for x, to_reverse in zip(("Revenue", "Frequency", "Recency"), (False, False, True)):
@@ -241,20 +246,21 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
             log_y=True,
             title=f"{x} metric",
         )
-        # Get the max value in the cluster info. The cluster info is a list of min - max
-        # values per cluster.
-        values = cluster_info[f"{x}_cluster"]
+        # Get the max value in the cluster info. The cluster_info_dict is a
+        # tuple with first element the min values of the cluster, and second
+        # element the max values of the cluster.
+        values = cluster_info[f"{x}_cluster"][1]  # get max values
         print(values)
         # Add vertical bar on each cluster end. But skip the last cluster.
-        loop_range = list(enumerate(range(1, len(values)-1, 2)))
+        loop_range = range(len(values) - 1)
         if to_reverse:
-            # @todo: remove hardcoded values
-            loop_range = zip((2, 1), range(len(values)-1, 1, -2))
-        for n_cluster, i in loop_range:
+            # Skip the last element
+            loop_range = range(len(values) - 1, 0, -1)
+        for n_cluster in loop_range:
             print(x)
-            print(values[i])
+            print(values[n_cluster])
             fig.add_vline(
-                x=values[i],
+                x=values[n_cluster],
                 annotation_text=f"End of cluster {n_cluster+1}",
                 line_dash="dot",
                 annotation=dict(textangle=90, font_color="red"),
@@ -267,12 +273,19 @@ def plot_rfm_distribution(df_rfm: pd.DataFrame, cluster_info: Dict[str, List[int
         st.plotly_chart(fig)
 
 
-def display_dataframe_heatmap(df_rfm: pd.DataFrame):
+def display_dataframe_heatmap(df_rfm: pd.DataFrame, cluster_info_dict):
     """Displays an heatmap of how many clients lay in the clusters.
 
     This method uses some black magic coming from the dataframe
     styling guide.
     """
+
+    def style_with_limits(x, column, cluster_limit_dict):
+        """Simple function to transform the cluster number into
+        a cluster + range string."""
+        min_v = cluster_limit_dict[column][0][x - 1]
+        max_v = cluster_limit_dict[column][1][x - 1]
+        return f"{x}: [{int(min_v)}, {int(max_v)}]"
 
     # Create a dataframe with the count of clients for each group
     # of cluster.
@@ -291,6 +304,13 @@ def display_dataframe_heatmap(df_rfm: pd.DataFrame):
         ["Revenue_cluster", "Frequency_cluster", "Recency_cluster"]
     )
 
+    # Add limits to the cells. In this way, we can better display
+    # the heatmap.
+    for cluster in ["Revenue_cluster", "Frequency_cluster", "Recency_cluster"]:
+        count[cluster] = count[cluster].apply(
+            lambda x: style_with_limits(x, cluster, cluster_info_dict)
+        )
+
     # Use the count column as values, then index with the clusters.
     count = count.pivot(
         index=["Revenue_cluster", "Frequency_cluster"],
@@ -301,15 +321,15 @@ def display_dataframe_heatmap(df_rfm: pd.DataFrame):
     # Style manipulation
     cell_hover = {
         "selector": "td",
-        "props": "font-size:1.5em",
+        "props": "font-size:1.2em",
     }
     index_names = {
         "selector": ".index_name",
-        "props": "font-style: italic; color: Black; font-weight:normal;font-size:1.5em;",
+        "props": "font-style: italic; color: Black; font-weight:normal;font-size:1.2em;",
     }
     headers = {
         "selector": "th:not(.index_name)",
-        "props": "background-color: White; color: black; font-size:1.5em",
+        "props": "background-color: White; color: black; font-size:1.2em",
     }
 
     # Finally, display
@@ -336,7 +356,7 @@ def main():
         "# Dataset "
         "\nThis is the processed dataset with information about the clients, such as"
         " the RFM values and the clusters they belong to."
-        )
+    )
     st.dataframe(df_rfm.style.format(formatter={"Revenue": "{:.2f}"}))
 
     cluster_info_dict = defaultdict(list)
@@ -351,15 +371,14 @@ def main():
             )
             min_cluster = cluster_info["min"].astype(int)
             max_cluster = cluster_info["max"].astype(int)
-            min_max_interlieved = list(itertools.chain(*zip(min_cluster, max_cluster)))
-            cluster_info_dict[cluster].extend(min_max_interlieved)
+            cluster_info_dict[cluster] = (min_cluster, max_cluster)
             st.dataframe(cluster_info)
 
     st.markdown("## RFM metric distribution")
 
     plot_rfm_distribution(df_rfm, cluster_info_dict)
 
-    display_dataframe_heatmap(df_rfm)
+    display_dataframe_heatmap(df_rfm, cluster_info_dict)
 
     st.markdown("## Interactive exploration")
 
@@ -369,9 +388,13 @@ def main():
     )
 
     client_to_select = (
-        df_rfm.groupby(["Recency_cluster", "Frequency_cluster", "Revenue_cluster"])["CustomerID"].first().values 
-        if filter_by_cluster 
-        else df["CustomerID"].unique() 
+        df_rfm.groupby(["Recency_cluster", "Frequency_cluster", "Revenue_cluster"])[
+            "CustomerID"
+        ]
+        .first()
+        .values
+        if filter_by_cluster
+        else df["CustomerID"].unique()
     )
 
     # Let the user select the user to investigate

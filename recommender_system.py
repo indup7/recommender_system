@@ -242,7 +242,6 @@ def display_recommendation_plots(
     items_other_description = _extract_description(df, bought_by_similar_users)
     suggestion_description = _extract_description(df, suggestions)
 
-
     # Plot the scatterplot
 
     fig = go.Figure()

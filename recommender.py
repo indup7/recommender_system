@@ -82,7 +82,7 @@ class Recommender:
     def recommend_products(
         self,
         user_id,
-        items_to_recommend = 5,
+        items_to_recommend=5,
     ):
         """Finds the recommended items for the user.
 
