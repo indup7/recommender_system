@@ -1,6 +1,5 @@
 pandas
 sklearn
-streamlit
 implicit
 scipy
 tqdm
