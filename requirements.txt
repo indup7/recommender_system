@@ -9,3 +9,4 @@ seaborn
 mlxtend
 plotly==5.9.0
 black
+altair<5
