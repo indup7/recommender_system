@@ -197,42 +197,24 @@ def explain_cluster(cluster_info):
             st.write(EXPLANATION_DICT[cluster].format(*min_max_interleaved))
 
 
-def categorize_user(recency_cluster, frequency_cluster, monetary_cluster):
-    """Describe the user with few words based on the cluster he belongs to."""
+def categorize_user(recency: int, frequency: int, revenue: int) -> str:
+    """Describe the user with a few words based on their cluster."""
 
-    score = f"{recency_cluster}{frequency_cluster}{monetary_cluster}"
+    # Determine the description based on the cluster
+    description = {
+        "111": "Tourist",
+        "133": "Former lover",
+        "123": "Former passionate client",
+        "113": "Spent a lot, but never come back",
+        "313": "Potential lover",
+        "312": "Interesting new client",
+        "311": "New customer",
+        "333": "Gold client",
+        "322": "Lovers",
+    }.get(f"{recency}{frequency}{revenue}", "Average client")
 
-    # @fixme: find a better approeach. These elif chains don't scale at all.
-
-    description = ""
-
-    if score == "111":
-        description = "Tourist"
-    elif score.startswith("2"):
-        description = "Losing interest"
-    elif score == "133":
-        description = "Former lover"
-    elif score == "123":
-        description = "Former passionate client"
-    elif score == "113":
-        description = "Spent a lot, but never come back"
-    elif score.startswith("1"):
-        description = "About to dump"
-    elif score == "313":
-        description = "Potential lover"
-    elif score == "312":
-        description = "Interesting new client"
-    elif score == "311":
-        description = "New customer"
-    elif score == "333":
-        description = "Gold client"
-    elif score == "322":
-        description = "Lovers"
-    else:
-        description = "Average client"
-
-    st.write(f"The customer can be described as: **{description}**")
-
+    # Return the description
+    return description
 
 def plot_rfm_distribution(
     df_rfm: pd.DataFrame, cluster_info: Dict[str, Tuple[List[int], List[int]]]
